@@ -8,8 +8,8 @@ const STORAGE_KEYS = {
 
 export const DEFAULT_SETTINGS: AppSettings = {
   apiKey: '',
-  model: 'llama-3.1-8b-instant',
-  visionModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
+  model: 'qwen/qwen3.6-27b',
+  visionModel: 'qwen/qwen3.6-27b',
   roleId: 'python-dev',
   customSystemPrompt: '',
   opacity: 0.95,
@@ -45,14 +45,21 @@ export async function loadMessages(): Promise<ChatMessage[]> {
   }
 }
 
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
 export async function saveMessages(messages: ChatMessage[]): Promise<void> {
-  try {
-    // Keep max 50 recent messages to optimize storage
-    const trimmed = messages.slice(-50);
-    await AsyncStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(trimmed));
-  } catch {
-    // Silent fail
+  if (saveTimer) {
+    clearTimeout(saveTimer);
   }
+  saveTimer = setTimeout(async () => {
+    try {
+      // Keep max 50 recent messages to optimize storage
+      const trimmed = messages.slice(-50);
+      await AsyncStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(trimmed));
+    } catch {
+      // Silent fail
+    }
+  }, 1000);
 }
 
 export async function clearStorageMessages(): Promise<void> {

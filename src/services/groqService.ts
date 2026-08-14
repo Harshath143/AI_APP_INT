@@ -29,6 +29,24 @@ export async function validateApiKey(apiKey: string): Promise<boolean> {
   }
 }
 
+function safeDecodeBytes(value: Uint8Array, decoder: any): string {
+  if (decoder) {
+    try {
+      return decoder.decode(value, { stream: true });
+    } catch {
+      // Fallback below
+    }
+  }
+  if (!value || !value.length) return '';
+  let result = '';
+  const chunkSize = 1024;
+  for (let i = 0; i < value.length; i += chunkSize) {
+    const sub = value.subarray(i, Math.min(i + chunkSize, value.length));
+    result += String.fromCharCode.apply(null, Array.from(sub));
+  }
+  return result;
+}
+
 /**
  * Streams chat completions from Groq API with live token callbacks.
  */
@@ -53,7 +71,7 @@ export async function streamGroqChat(
   ];
 
   const payload = {
-    model: model || 'llama-3.1-8b-instant',
+    model: model || 'qwen/qwen3.6-27b',
     messages: formattedMessages,
     temperature: 0.6,
     max_tokens: 2048,
@@ -97,9 +115,7 @@ export async function streamGroqChat(
         const { done, value } = await reader.read();
         if (done) break;
 
-        const decodedChunk = decoder
-          ? decoder.decode(value, { stream: true })
-          : String.fromCharCode.apply(null, Array.from(value as Uint8Array));
+        const decodedChunk = safeDecodeBytes(value as Uint8Array, decoder);
 
         buffer += decodedChunk;
         const lines = buffer.split('\n');
@@ -209,7 +225,7 @@ export async function analyzeGroqImage(
   base64Image: string,
   userPrompt: string,
   apiKey: string,
-  visionModel: string = 'meta-llama/llama-4-scout-17b-16e-instruct',
+  visionModel: string = 'qwen/qwen3.6-27b',
   callbacks: StreamCallbacks,
 ): Promise<void> {
   if (!apiKey || !apiKey.trim()) {
@@ -217,27 +233,41 @@ export async function analyzeGroqImage(
     return;
   }
 
+  // Convert URL-safe base64 characters (- -> +, _ -> /) and strip data prefix
+  const cleanBase64 = base64Image
+    .replace(/^data:image\/[a-zA-Z]+;base64,/, '')
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .trim();
+
+  const isVisionModel =
+    visionModel.includes('vision') || visionModel.includes('scout');
+
+  const textPrompt =
+    userPrompt ||
+    'Analyze this interview code/question image and provide a clear, correct solution with explanations and code.';
+
+  const userContent = isVisionModel
+    ? [
+        {
+          type: 'text',
+          text: textPrompt,
+        },
+        {
+          type: 'image_url',
+          image_url: {
+            url: `data:image/png;base64,${cleanBase64}`,
+          },
+        },
+      ]
+    : `${textPrompt}\n\n[Image Base64 Data Attached]:\ndata:image/png;base64,${cleanBase64}`;
+
   const payload = {
     model: visionModel || 'meta-llama/llama-4-scout-17b-16e-instruct',
     messages: [
       {
         role: 'user',
-        content: [
-          {
-            type: 'text',
-            text:
-              userPrompt ||
-              'Analyze this interview code/question image and provide a clear, correct solution with explanations and code.',
-          },
-          {
-            type: 'image_url',
-            image_url: {
-              url: base64Image.startsWith('data:')
-                ? base64Image
-                : `data:image/jpeg;base64,${base64Image}`,
-            },
-          },
-        ],
+        content: userContent,
       },
     ],
     temperature: 0.5,

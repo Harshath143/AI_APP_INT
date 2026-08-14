@@ -52,17 +52,15 @@ export const CANDIDATE_ROLES: CandidateRoleOption[] = [
 ];
 
 export const GROQ_MODELS = [
-  { id: 'llama-3.1-8b-instant', label: 'llama-3.1-8b-instant (Fastest)' },
-  { id: 'llama-3.3-70b-versatile', label: 'llama-3.3-70b-versatile (Best Quality)' },
-  { id: 'mixtral-8x7b-32768', label: 'mixtral-8x7b-32768 (Long Context)' },
-  { id: 'llama3-70b-8192', label: 'llama3-70b-8192' },
-  { id: 'llama3-8b-8192', label: 'llama3-8b-8192' },
-  { id: 'gemma2-9b-it', label: 'gemma2-9b-it' },
+  { id: 'qwen/qwen3.6-27b', label: 'qwen/qwen3.6-27b' },
+  { id: 'openai/gpt-oss-120b', label: 'openai/gpt-oss-120b' },
+  { id: 'openai/gpt-oss-20b', label: 'openai/gpt-oss-20b' },
 ];
 
 export const GROQ_VISION_MODELS = [
-  { id: 'meta-llama/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout 17B (Default)' },
-  { id: 'llama-3.2-11b-vision-preview', label: 'Llama 3.2 11B Vision' },
+  { id: 'qwen/qwen3.6-27b', label: 'qwen/qwen3.6-27b' },
+  { id: 'openai/gpt-oss-120b', label: 'openai/gpt-oss-120b' },
+  { id: 'openai/gpt-oss-20b', label: 'openai/gpt-oss-20b' },
 ];
 
 export interface AppSettings {

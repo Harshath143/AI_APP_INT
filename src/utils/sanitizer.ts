@@ -11,32 +11,41 @@ const AUTH_HEADER_PATTERN = /Bearer\s+gsk_[a-zA-Z0-9_]{16,}/gi;
  * Sanitizes a string or serializable object, replacing any Groq API Key with [REDACTED_API_KEY]
  */
 export function redactSensitiveData(data: unknown): unknown {
-  if (typeof data === 'string') {
-    return data
-      .replace(AUTH_HEADER_PATTERN, 'Bearer [REDACTED_API_KEY]')
-      .replace(GROQ_KEY_PATTERN, 'gsk_••••••••••••');
-  }
-
-  if (data instanceof Error) {
-    const errorCopy = new Error(redactSensitiveData(data.message) as string);
-    errorCopy.name = data.name;
-    if (data.stack) {
-      errorCopy.stack = redactSensitiveData(data.stack) as string;
+  try {
+    if (data === null || data === undefined) {
+      return data;
     }
-    return errorCopy;
-  }
 
-  if (typeof data === 'object' && data !== null) {
-    try {
-      const jsonStr = JSON.stringify(data);
-      const sanitizedStr = redactSensitiveData(jsonStr) as string;
-      return JSON.parse(sanitizedStr);
-    } catch {
-      return '[Unparseable Object - Sanitized]';
+    if (typeof data === 'string') {
+      return data
+        .replace(AUTH_HEADER_PATTERN, 'Bearer [REDACTED_API_KEY]')
+        .replace(GROQ_KEY_PATTERN, 'gsk_••••••••••••');
     }
-  }
 
-  return data;
+    if (data instanceof Error) {
+      const msg = typeof data.message === 'string' ? data.message : String(data);
+      const errorCopy = new Error(redactSensitiveData(msg) as string);
+      errorCopy.name = data.name || 'Error';
+      if (data.stack) {
+        errorCopy.stack = redactSensitiveData(String(data.stack)) as string;
+      }
+      return errorCopy;
+    }
+
+    if (typeof data === 'object') {
+      try {
+        const jsonStr = JSON.stringify(data);
+        const sanitizedStr = redactSensitiveData(jsonStr) as string;
+        return JSON.parse(sanitizedStr);
+      } catch {
+        return '[Object - Redacted]';
+      }
+    }
+
+    return data;
+  } catch {
+    return String(data);
+  }
 }
 
 /**

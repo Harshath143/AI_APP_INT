@@ -96,35 +96,44 @@ export const SettingsModal: React.FC<Props> = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
+          <ScrollView
+            style={styles.body}
+            contentContainerStyle={styles.bodyContent}
+            keyboardShouldPersistTaps="handled"
+          >
             {/* Groq API Key Section */}
             <View style={styles.section}>
               <Text style={styles.label}>🔑 Groq API Key</Text>
               <Text style={styles.sublabel}>
-                Paste your Groq API key (starts with gsk_). Stored locally only.
+                Enter or paste your Groq API key (starts with gsk_). Stored locally on device.
               </Text>
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.keyInput}
-                  value={keyInput}
-                  onChangeText={setKeyInput}
-                  placeholder="gsk_..."
-                  placeholderTextColor="#64748b"
-                  secureTextEntry={!showKey}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                <TouchableOpacity style={styles.pasteBtn} onPress={handlePasteKey}>
-                  <Text style={styles.pasteText}>📋 Paste</Text>
+
+              {/* Full-width Touch-enabled Text Input */}
+              <TextInput
+                style={styles.keyInputFull}
+                value={keyInput}
+                onChangeText={text => setKeyInput(text)}
+                placeholder="gsk_..."
+                placeholderTextColor="#71717a"
+                secureTextEntry={!showKey}
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={true}
+                selectTextOnFocus={true}
+              />
+
+              {/* Key Action Buttons */}
+              <View style={styles.keyActionsRow}>
+                <TouchableOpacity style={styles.pasteBtn} onPress={handlePasteKey} activeOpacity={0.7}>
+                  <Text style={styles.pasteText}>📋 Paste from Clipboard</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.clearKeyBtn} onPress={() => setKeyInput('')}>
+
+                <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowKey(!showKey)} activeOpacity={0.7}>
+                  <Text style={styles.eyeText}>{showKey ? '🔒 Hide' : '👁 Show'}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.clearKeyBtn} onPress={() => setKeyInput('')} activeOpacity={0.7}>
                   <Text style={styles.clearKeyText}>Clear</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.eyeBtn}
-                  onPress={() => setShowKey(!showKey)}
-                >
-                  <Text style={styles.eyeText}>{showKey ? 'Hide' : 'Show'}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -132,9 +141,10 @@ export const SettingsModal: React.FC<Props> = ({
                 style={styles.testBtn}
                 onPress={handleTestKey}
                 disabled={isTesting}
+                activeOpacity={0.7}
               >
                 <Text style={styles.testBtnText}>
-                  {isTesting ? 'Testing...' : '⚡ Test Groq API Key'}
+                  {isTesting ? 'Testing...' : '⚡ Test Connection'}
                 </Text>
               </TouchableOpacity>
               {testStatus ? <Text style={styles.statusText}>{testStatus}</Text> : null}
@@ -236,15 +246,15 @@ export const SettingsModal: React.FC<Props> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(2, 6, 23, 0.85)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     padding: 16,
   },
   modalContent: {
-    backgroundColor: '#0f172a',
-    borderRadius: 12,
+    backgroundColor: '#09090b',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
+    borderColor: '#27272a',
     height: '80%',
     maxHeight: '85%',
     flexDirection: 'column',
@@ -256,18 +266,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    borderBottomColor: '#18181b',
+    backgroundColor: '#000000',
   },
   headerTitle: {
-    color: '#38bdf8',
+    color: '#ffffff',
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   closeBtn: {
     padding: 4,
   },
   closeText: {
-    color: '#94a3b8',
+    color: '#71717a',
     fontSize: 18,
     fontWeight: '600',
   },
@@ -282,81 +294,85 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   label: {
-    color: '#f8fafc',
+    color: '#ffffff',
     fontSize: 13,
     fontWeight: '700',
   },
   sublabel: {
-    color: '#64748b',
+    color: '#71717a',
     fontSize: 11,
   },
-  inputRow: {
+  keyInputFull: {
+    backgroundColor: '#18181b',
+    color: '#ffffff',
+    fontSize: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#3f3f46',
+    width: '100%',
+    marginVertical: 4,
+  },
+  keyActionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: 8,
   },
-  keyInput: {
-    flex: 1,
-    backgroundColor: '#1e293b',
-    color: '#f8fafc',
-    fontSize: 13,
-    paddingHorizontal: 12,
+  pasteBtn: {
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  pasteBtn: {
-    backgroundColor: '#0284c7',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    borderRadius: 6,
   },
   pasteText: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 11,
     fontWeight: '700',
   },
   clearKeyBtn: {
-    backgroundColor: '#334155',
+    backgroundColor: '#18181b',
     paddingHorizontal: 8,
     paddingVertical: 8,
-    borderRadius: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#27272a',
   },
   clearKeyText: {
-    color: '#cbd5e1',
+    color: '#a1a1aa',
     fontSize: 11,
     fontWeight: '600',
   },
   eyeBtn: {
-    backgroundColor: '#1e293b',
+    backgroundColor: '#18181b',
     paddingHorizontal: 10,
     paddingVertical: 8,
-    borderRadius: 6,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#27272a',
   },
   eyeText: {
-    color: '#38bdf8',
+    color: '#ffffff',
     fontSize: 11,
     fontWeight: '700',
   },
   testBtn: {
-    backgroundColor: '#1e293b',
-    paddingVertical: 8,
+    backgroundColor: '#18181b',
+    paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#0284c7',
+    borderColor: '#27272a',
     marginTop: 4,
   },
   testBtnText: {
-    color: '#38bdf8',
+    color: '#ffffff',
     fontSize: 12,
     fontWeight: '700',
   },
   statusText: {
-    color: '#cbd5e1',
+    color: '#a1a1aa',
     fontSize: 11,
     marginTop: 4,
   },
@@ -366,40 +382,40 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   optionChip: {
-    backgroundColor: '#1e293b',
+    backgroundColor: '#18181b',
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#27272a',
   },
   optionChipActive: {
-    backgroundColor: '#0284c7',
-    borderColor: '#38bdf8',
+    backgroundColor: '#ffffff',
+    borderColor: '#ffffff',
   },
   chipText: {
-    color: '#94a3b8',
+    color: '#a1a1aa',
     fontSize: 11,
     fontWeight: '600',
   },
   chipTextActive: {
-    color: '#ffffff',
-    fontWeight: '700',
+    color: '#000000',
+    fontWeight: '800',
   },
   promptInput: {
-    backgroundColor: '#1e293b',
-    color: '#f8fafc',
+    backgroundColor: '#18181b',
+    color: '#ffffff',
     fontSize: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#27272a',
     minHeight: 60,
   },
   clearHistoryBtn: {
     backgroundColor: '#450a0a',
-    paddingVertical: 8,
+    paddingVertical: 9,
     borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
@@ -417,26 +433,27 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#1e293b',
+    borderTopColor: '#18181b',
+    backgroundColor: '#000000',
   },
   cancelBtn: {
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
   cancelText: {
-    color: '#94a3b8',
+    color: '#71717a',
     fontSize: 13,
     fontWeight: '600',
   },
   saveBtn: {
-    backgroundColor: '#2563eb',
-    paddingHorizontal: 16,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 18,
     paddingVertical: 9,
     borderRadius: 8,
   },
   saveText: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
   },
 });

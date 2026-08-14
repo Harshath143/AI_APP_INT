@@ -1,6 +1,6 @@
 # 🚀 Noobie - AI Interview Copilot (AI_APP_INT)
 
-An ultra-fast, real-time AI Interview Copilot and Assistant built with **React Native**, **TypeScript**, and **Groq Cloud API**. Designed to provide instant, high-impact technical answers, code solutions, audio transcriptions, and screen analysis during live interviews and coding sessions.
+An ultra-fast, real-time AI Interview Copilot and Assistant built with **React Native**, **TypeScript**, and **Groq Cloud API**, featuring a **Luxury Minimalist Black & White Theme**. Designed for clean legibility, low latency, and distraction-free operation during live technical interviews and coding challenges.
 
 ---
 
@@ -8,14 +8,9 @@ An ultra-fast, real-time AI Interview Copilot and Assistant built with **React N
 
 * **⚡ Ultra-Fast LLM Streaming:** Real-time token streaming powered by Groq's high-speed inference engine for near-instant responses.
 * **🎙️ Voice & Audio Transcription:** Transcribe live interview questions using Groq's Whisper API (`whisper-large-v3-turbo`).
-* **📸 Screen Vision Analysis:** Upload/capture screenshots of coding challenges, system design diagrams, or whiteboards for step-by-step solutions using Groq Vision (`Llama 4 Scout 17B`, `Llama 3.2 11B Vision`).
-* **🎯 Specialized Candidate Roles:** Switch presets tailored for specific technical roles:
-  * **Python Developer:** Focused on Python best practices, algorithms, and production code.
-  * **React Native Developer:** Architecture, state management, mobile performance, and native bridges.
-  * **System Design Architect:** Scalability, distributed systems, high availability, and trade-offs.
-  * **Fullstack Engineer:** Frontend performance, REST/GraphQL APIs, databases, and microservices.
-  * **General Tech:** Standard software engineering technical interview answers.
-* **🪟 HUD & Transparency Controls:** Customizable interface opacity and collapsible view for discreet overlay functionality during practice sessions.
+* **📸 Screen Vision Analysis:** Upload/capture screenshots of coding challenges or system architecture diagrams using Groq Vision (`Llama 4 Scout 17B`, `Llama 3.2 11B Vision`).
+* **🎯 Specialized Candidate Roles:** Switch presets tailored for specific technical roles (*Python Dev*, *React Native Dev*, *System Design*, *Fullstack Engineer*, *General Tech*).
+* **🖤 Luxury Minimalist B&W Aesthetic:** High-contrast monochrome layout with clean borders, obsidian black backgrounds (`#000000`), crisp white accents (`#ffffff`), and dark zinc cards (`#18181b`).
 * **🔒 API Key & Log Privacy Sanitization:** Automatic redaction of sensitive credentials (`gsk_...`) in developer logs and error outputs.
 * **💾 Local Data Persistence:** Automatic saving of settings, custom system prompts, and interview session history via Async Storage.
 

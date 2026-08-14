@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -14,50 +15,58 @@ interface Props {
   onTranscribeAndAnswer: () => void;
   onPickScreenAnalysis: () => void;
   onClear: () => void;
+  onOpenSettings: () => void;
+  isRecording: boolean;
+  onToggleRecord: () => void;
   isGenerating: boolean;
   isTranscribing: boolean;
+  hasApiKey: boolean;
 }
 
-export const ActionToolbar: React.FC<Props> = ({
+export const ActionToolbar: React.FC<Props> = React.memo(({
   inputText,
   onChangeInputText,
   onSendAnswer,
   onTranscribeAndAnswer,
   onPickScreenAnalysis,
   onClear,
+  isRecording,
+  onToggleRecord,
   isGenerating,
   isTranscribing,
 }) => {
   return (
     <View style={styles.container}>
-      <View style={styles.buttonRow}>
+      {/* Top Action Pills */}
+      <View style={styles.actionRow}>
         <TouchableOpacity
-          style={[styles.actionBtn, styles.btnAi]}
-          onPress={onSendAnswer}
-          disabled={isGenerating || !inputText.trim()}
+          style={[styles.pillBtn, isRecording ? styles.pillRecActive : styles.pillDark]}
+          onPress={onToggleRecord}
           activeOpacity={0.8}
         >
-          <Text style={styles.btnText}>💡 AI Answer</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.btnAnalyse]}
-          onPress={onTranscribeAndAnswer}
-          disabled={isTranscribing || isGenerating}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.btnText}>
-            {isTranscribing ? '⏳ Whisper...' : '🔍 Analyse Audio'}
+          <Text style={styles.pillText}>
+            {isRecording ? '⏹ STOP' : '🎙 RECORD'}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.actionBtn, styles.btnScreen]}
+          style={[styles.pillBtn, styles.pillDark]}
+          onPress={onTranscribeAndAnswer}
+          disabled={isTranscribing || isGenerating}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.pillText}>
+            {isTranscribing ? '⏳ WHISPER...' : '🔍 TRANSCRIBE'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.pillBtn, styles.pillDark]}
           onPress={onPickScreenAnalysis}
           disabled={isGenerating}
           activeOpacity={0.8}
         >
-          <Text style={styles.btnText}>📸 Screen Vision</Text>
+          <Text style={styles.pillText}>📸 VISION</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -65,118 +74,160 @@ export const ActionToolbar: React.FC<Props> = ({
           onPress={onClear}
           activeOpacity={0.7}
         >
-          <Text style={styles.clearText}>🗑 Clear</Text>
+          <Text style={styles.clearText}>Clear</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.inputRow}>
+      {/* Minimal Input Bar */}
+      <View style={styles.inputContainer}>
         <TextInput
-          style={styles.textInput}
+          style={styles.inputField}
           value={inputText}
           onChangeText={onChangeInputText}
           placeholder="Type or transcribe question..."
-          placeholderTextColor="#64748b"
-          multiline
+          placeholderTextColor="#52525b"
+          multiline={false}
           maxLength={1000}
           editable={!isGenerating && !isTranscribing}
+          returnKeyType="send"
+          onSubmitEditing={() => {
+            if (inputText.trim() && !isGenerating) {
+              onSendAnswer();
+            }
+          }}
+          enablesReturnKeyAutomatically={true}
         />
 
-        <TouchableOpacity
-          style={[
-            styles.sendBtn,
-            (!inputText.trim() || isGenerating) && styles.sendBtnDisabled,
-          ]}
-          onPress={onSendAnswer}
-          disabled={!inputText.trim() || isGenerating}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.sendText}>Send ➤</Text>
-        </TouchableOpacity>
+        <View style={styles.inputActions}>
+          <TouchableOpacity
+            style={styles.addCodeBtn}
+            onPress={() => {
+              onChangeInputText(
+                inputText
+                  ? `${inputText}\n\`\`\`\n\n\`\`\``
+                  : '```\n// Add your code snippet here\n```'
+              );
+            }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.addCodeText}>+ CODE</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.sendBtn,
+              (!inputText.trim() || isGenerating) && styles.sendBtnDisabled,
+            ]}
+            onPress={() => onSendAnswer()}
+            disabled={!inputText.trim() || isGenerating}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.sendIcon}>↑</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#0f172a',
+    backgroundColor: '#000000',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
-    padding: 10,
-    gap: 8,
+    borderBottomColor: '#18181b',
   },
-  buttonRow: {
+  actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
+    gap: 8,
   },
-  actionBtn: {
-    paddingHorizontal: 9,
-    paddingVertical: 6,
-    borderRadius: 6,
+  pillBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
     borderWidth: 1,
   },
-  btnAi: {
-    backgroundColor: '#0369a1',
-    borderColor: '#0284c7',
+  pillDark: {
+    backgroundColor: '#18181b',
+    borderColor: '#27272a',
   },
-  btnAnalyse: {
-    backgroundColor: '#4c1d95',
-    borderColor: '#6d28d9',
+  pillRecActive: {
+    backgroundColor: '#450a0a',
+    borderColor: '#ef4444',
   },
-  btnScreen: {
-    backgroundColor: '#047857',
-    borderColor: '#059669',
-  },
-  btnText: {
-    color: '#f8fafc',
+  pillText: {
+    color: '#ffffff',
     fontSize: 11,
     fontWeight: '700',
+    letterSpacing: 0.6,
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'sans-serif-medium',
   },
   clearBtn: {
+    marginLeft: 'auto',
     paddingHorizontal: 8,
     paddingVertical: 6,
-    backgroundColor: '#1e293b',
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#334155',
-    marginLeft: 'auto',
   },
   clearText: {
-    color: '#94a3b8',
-    fontSize: 11,
+    color: '#71717a',
+    fontSize: 12,
     fontWeight: '600',
   },
-  inputRow: {
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#09090b',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#27272a',
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+  },
+  inputField: {
+    flex: 1,
+    color: '#ffffff',
+    fontSize: 13,
+    paddingVertical: 10,
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
+  },
+  inputActions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  textInput: {
-    flex: 1,
-    backgroundColor: '#1e293b',
-    color: '#f8fafc',
-    fontSize: 13,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+  addCodeBtn: {
+    backgroundColor: '#18181b',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#334155',
-    maxHeight: 70,
+    borderColor: '#27272a',
+  },
+  addCodeText: {
+    color: '#a1a1aa',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
   sendBtn: {
-    backgroundColor: '#2563eb',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sendBtnDisabled: {
-    backgroundColor: '#334155',
+    backgroundColor: '#27272a',
   },
-  sendText: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '700',
+  sendIcon: {
+    color: '#000000',
+    fontSize: 16,
+    fontWeight: '900',
   },
 });
+
+

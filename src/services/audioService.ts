@@ -29,7 +29,13 @@ class AudioServiceManager {
       durationSeconds: this.durationSeconds,
       audioUri: this.isRecording ? 'mock_interview_audio.wav' : null,
     };
-    this.listeners.forEach(fn => fn(currentState));
+    this.listeners.forEach(fn => {
+      try {
+        fn(currentState);
+      } catch {
+        // Prevent listener error from crashing audio service
+      }
+    });
   }
 
   startRecording() {
